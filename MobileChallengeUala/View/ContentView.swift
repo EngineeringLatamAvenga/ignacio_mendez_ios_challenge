@@ -64,7 +64,7 @@ struct SearchBar: View {
                 }
 
                 searchWorkItem = item // Guarda el nuevo work item en SearchBar
-                DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: item) // Espera 5 segundos en SearchBar - Apply delay for both cases now
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: item) // Espera 0.5 segundos en SearchBar - Reduced delay
             }
     }
 }
@@ -72,5 +72,3 @@ struct SearchBar: View {
 #Preview {
     ContentView()
 }
-
-

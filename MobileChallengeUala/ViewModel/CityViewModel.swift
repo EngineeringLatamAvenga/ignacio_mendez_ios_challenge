@@ -16,14 +16,26 @@ class CityViewModel: ObservableObject {
     @Published var isLoading: Bool = true // Nueva variable para el estado de carga
     var cityViewService = CityViewService()
     private var searchWorkItem: DispatchWorkItem? // Para el debounce
+    private static var allCities: [CityModel] = [] // Static property to hold all cities
 
     @MainActor
     func fetchCities() async throws {
+        if !CityViewModel.allCities.isEmpty { // Check if cities are already loaded
+            self.cities = CityViewModel.allCities // Load from static property
+            filterCities()
+            return
+        }
+
+        isLoading = true // Start loading before fetching
+
         Task {
             do {
-                cities = try await cityViewService.getCities()
+                let fetchedCities = try await cityViewService.getCities()
+                CityViewModel.allCities = fetchedCities // Store fetched cities in static property
+                self.cities = fetchedCities // Update published property
                 filterCities() // Filtrar inicialmente con texto vacío o existente
             } catch {
+                isLoading = false // Stop loading even on error
                 throw error
             }
         }
@@ -35,7 +47,7 @@ class CityViewModel: ObservableObject {
 
         let lowercasedSearchText = searchText.lowercased()
 
-        filteredCities = cities.filter { city in
+        filteredCities = CityViewModel.allCities.filter { city in // Filter from allCities
             city.lowercaseName.hasPrefix(lowercasedSearchText)
         }.sorted { $0.lowercaseName < $1.lowercaseName }
 
@@ -56,6 +68,6 @@ class CityViewModel: ObservableObject {
         }
 
         searchWorkItem = item // Guarda el nuevo work item
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: item) // Espera 1 segundo
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: item) // Espera 0.3 segundos - Reduced delay
     }
 }

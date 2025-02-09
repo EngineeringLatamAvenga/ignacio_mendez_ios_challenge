@@ -14,7 +14,6 @@ struct CityModel: Codable, Identifiable {
 
     // New properties for lowercase versions
     let lowercaseName: String
-    let lowercaseCountry: String
 
     enum CodingKeys: String, CodingKey {
         case country, name
@@ -29,7 +28,6 @@ struct CityModel: Codable, Identifiable {
         self.id = id
         self.coord = coord
         self.lowercaseName = name.lowercased()
-        self.lowercaseCountry = country.lowercased()
     }
 
 
@@ -43,11 +41,9 @@ struct CityModel: Codable, Identifiable {
 
         // Calculate and assign lowercase properties during decoding
         lowercaseName = name.lowercased()
-        lowercaseCountry = country.lowercased()
     }
 }
 
 struct Coord: Codable {
     let lon, lat: Double
 }
-
