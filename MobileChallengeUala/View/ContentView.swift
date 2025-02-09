@@ -16,16 +16,17 @@ struct ContentView: View {
             VStack {
                 SearchBar(text: $cityViewModel.searchText, cityViewModel: cityViewModel)
 
-                // Mostrar ProgressView si isLoading es true, sino mostrar la lista
                 if cityViewModel.isLoading {
-                    ProgressView() // Spinner por defecto
-                        .progressViewStyle(CircularProgressViewStyle(tint: .blue)) // Opcional: Estilo y color
-                        .scaleEffect(2.0, anchor: .center) // Opcional: Escala para hacerlo más grande
-                        .padding(.top, 20) // Opcional: Espacio superior
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .blue))
+                        .scaleEffect(2.0, anchor: .center)
+                        .padding(.top, 20)
                 } else {
-                    List{
-                        ForEach(cityViewModel.filteredCities) { city in
-                            CityRowView(cityModel: city)
+                    ScrollView {
+                        LazyVStack {
+                            ForEach(cityViewModel.filteredCities) { city in
+                                CityRowView(cityModel: city)
+                            }
                         }
                     }
                 }
@@ -59,6 +60,7 @@ struct SearchBar: View {
                 searchWorkItem?.cancel() // Cancela cualquier trabajo previo en SearchBar
 
                 let item = DispatchWorkItem {
+                    cityViewModel.isLoading = true
                     cityViewModel.searchText = newText // Actualiza searchText en CityViewModel
                     cityViewModel.debounceFilterCities() // Llama a la función debounced en CityViewModel
                 }

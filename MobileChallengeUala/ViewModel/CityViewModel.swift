@@ -6,68 +6,70 @@
 //
 
 import Foundation
-import Combine // Import Combine for DispatchWorkItem
+import Combine
 
 class CityViewModel: ObservableObject {
 
     @Published var cities: [CityModel] = []
     @Published var filteredCities: [CityModel] = []
     @Published var searchText: String = ""
-    @Published var isLoading: Bool = true // Nueva variable para el estado de carga
+    @Published var isLoading: Bool = true
     var cityViewService = CityViewService()
-    private var searchWorkItem: DispatchWorkItem? // Para el debounce
-    private static var allCities: [CityModel] = [] // Static property to hold all cities
+    private var searchWorkItem: DispatchWorkItem?
+    private static var allCities: [CityModel] = []
 
     @MainActor
     func fetchCities() async throws {
-        if !CityViewModel.allCities.isEmpty { // Check if cities are already loaded
-            self.cities = CityViewModel.allCities // Load from static property
+        if !CityViewModel.allCities.isEmpty {
+            self.cities = CityViewModel.allCities
             filterCities()
             return
         }
 
-        isLoading = true // Start loading before fetching
+        isLoading = true
 
-        Task {
-            do {
-                let fetchedCities = try await cityViewService.getCities()
-                CityViewModel.allCities = fetchedCities // Store fetched cities in static property
-                self.cities = fetchedCities // Update published property
-                filterCities() // Filtrar inicialmente con texto vacío o existente
-            } catch {
-                isLoading = false // Stop loading even on error
-                throw error
-            }
+        do {
+            let fetchedCities = try await cityViewService.getCities()
+            CityViewModel.allCities = fetchedCities
+            self.cities = fetchedCities
+            filterCities()
+        } catch {
+            isLoading = false
+            throw error
         }
     }
-
 
     func filterCities() {
         let startTime = Date()
 
         let lowercasedSearchText = searchText.lowercased()
 
-        filteredCities = CityViewModel.allCities.filter { city in // Filter from allCities
-            city.lowercaseName.hasPrefix(lowercasedSearchText)
-        }.sorted { $0.lowercaseName < $1.lowercaseName }
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self = self else { return }
 
-        let endTime = Date()
-        let executionTime = endTime.timeIntervalSince(startTime)
-        print("Tiempo de ejecución de filterCities (optimizado): \(executionTime) segundos")
-        self.isLoading = false // Desactivar el indicador de carga al finalizar el filtrado
+            let filtered = CityViewModel.allCities.filter { city in
+                city.lowercaseName.hasPrefix(lowercasedSearchText)
+            }.sorted { $0.lowercaseName < $1.lowercaseName }
+
+            DispatchQueue.main.async {
+                self.filteredCities = filtered
+                self.isLoading = false
+                let endTime = Date()
+                let executionTime = endTime.timeIntervalSince(startTime)
+                print("Tiempo de ejecución de filterCities (optimizado): \(executionTime) segundos")
+            }
+        }
     }
 
-    // Función debounced para filtrar ciudades
     func debounceFilterCities() {
-        searchWorkItem?.cancel() // Cancela cualquier trabajo previo
-
-        isLoading = true // Activar el indicador de carga antes de comenzar el filtrado
+        isLoading = true
+        searchWorkItem?.cancel()
 
         let item = DispatchWorkItem { [weak self] in
-            self?.filterCities() // Llama a la función de filtrado después del delay
+            self?.filterCities()
         }
 
-        searchWorkItem = item // Guarda el nuevo work item
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: item) // Espera 0.3 segundos - Reduced delay
+        searchWorkItem = item
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: item)
     }
 }
