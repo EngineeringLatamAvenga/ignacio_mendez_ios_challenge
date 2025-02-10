@@ -10,11 +10,22 @@ import SwiftUI
 struct ContentView: View {
 
     @ObservedObject private var cityViewModel = CityViewModel()
+    @State private var showingFavorites = false
 
     var body: some View {
         NavigationView {
             VStack {
-                SearchBar(text: $cityViewModel.searchText, cityViewModel: cityViewModel)
+                HStack {
+                    SearchBar(text: $cityViewModel.searchText, cityViewModel: cityViewModel)
+                    Button {
+                        showingFavorites.toggle()
+                        cityViewModel.filterByFavorites(showFavorites: showingFavorites)
+                    } label: {
+                        Image(systemName: showingFavorites ? "heart.fill" : "heart")
+                            .foregroundColor(.red)
+                    }
+                }
+
 
                 if cityViewModel.isLoading {
                     ProgressView()
@@ -31,7 +42,9 @@ struct ContentView: View {
                     }
                 }
                 Spacer()
-            }.onAppear {
+            }.padding(.top, 10)
+            .navigationTitle("Cities")
+            .onAppear {
                 Task {
                     do {
                         try await cityViewModel.fetchCities()

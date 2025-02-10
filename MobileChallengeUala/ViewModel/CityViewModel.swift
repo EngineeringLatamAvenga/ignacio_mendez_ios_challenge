@@ -17,6 +17,8 @@ class CityViewModel: ObservableObject {
     var cityViewService = CityViewService()
     private var searchWorkItem: DispatchWorkItem?
     private static var allCities: [CityModel] = []
+    private var showFavorites = false
+
 
     @MainActor
     func fetchCities() async throws {
@@ -43,11 +45,14 @@ class CityViewModel: ObservableObject {
         let startTime = Date()
 
         let lowercasedSearchText = searchText.lowercased()
+        let favoriteCityIds = FavoritesManager.shared.getFavoriteCitiesIds()
 
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             guard let self = self else { return }
 
-            let filtered = CityViewModel.allCities.filter { city in
+            let baseCities = self.showFavorites ? CityViewModel.allCities.filter { favoriteCityIds.contains($0.id) } : CityViewModel.allCities
+
+            let filtered = baseCities.filter { city in
                 city.lowercaseName.hasPrefix(lowercasedSearchText)
             }.sorted { $0.lowercaseName < $1.lowercaseName }
 
@@ -71,5 +76,10 @@ class CityViewModel: ObservableObject {
 
         searchWorkItem = item
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: item)
+    }
+
+    func filterByFavorites(showFavorites: Bool) {
+        self.showFavorites = showFavorites
+        filterCities()
     }
 }
