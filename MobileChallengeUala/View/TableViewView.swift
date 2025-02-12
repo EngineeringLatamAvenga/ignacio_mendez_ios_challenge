@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct TableViewView: View {
 
     @ObservedObject private var cityViewModel = CityViewModel()
     @State private var showingFavorites = false
@@ -61,7 +61,7 @@ struct ContentView: View {
 struct SearchBar: View {
     @Binding var text: String
     @ObservedObject var cityViewModel: CityViewModel
-    @State private var searchWorkItem: DispatchWorkItem? // Work item for delay in SearchBar
+    @State private var searchWorkItem: DispatchWorkItem?
 
     var body: some View {
         TextField("Search", text: $text)
@@ -70,20 +70,20 @@ struct SearchBar: View {
             .cornerRadius(8)
             .padding(.horizontal)
             .onChange(of: text) { newText in
-                searchWorkItem?.cancel() // Cancela cualquier trabajo previo en SearchBar
+                searchWorkItem?.cancel()
 
                 let item = DispatchWorkItem {
                     cityViewModel.isLoading = true
-                    cityViewModel.searchText = newText // Actualiza searchText en CityViewModel
-                    cityViewModel.debounceFilterCities() // Llama a la función debounced en CityViewModel
+                    cityViewModel.searchText = newText
+                    cityViewModel.debounceFilterCities()
                 }
 
-                searchWorkItem = item // Guarda el nuevo work item en SearchBar
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: item) // Espera 0.5 segundos en SearchBar - Reduced delay
+                searchWorkItem = item
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: item)
             }
     }
 }
 
 #Preview {
-    ContentView()
+    TableViewView()
 }

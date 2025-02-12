@@ -12,7 +12,6 @@ struct CityModel: Codable, Identifiable {
     let id: Int
     let coord: Coord
 
-    // New properties for lowercase versions
     let lowercaseName: String
 
     enum CodingKeys: String, CodingKey {
@@ -21,7 +20,6 @@ struct CityModel: Codable, Identifiable {
         case coord
     }
 
-    // Designated Initializer - For direct instantiation (e.g., previews, manual creation)
     init(country: String, name: String, id: Int, coord: Coord) {
         self.country = country
         self.name = name
@@ -30,8 +28,6 @@ struct CityModel: Codable, Identifiable {
         self.lowercaseName = name.lowercased()
     }
 
-
-    // Decoder initializer - to decode from JSON and calculate lowercase properties
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         country = try container.decode(String.self, forKey: .country)
@@ -39,7 +35,6 @@ struct CityModel: Codable, Identifiable {
         id = try container.decode(Int.self, forKey: .id)
         coord = try container.decode(Coord.self, forKey: .coord)
 
-        // Calculate and assign lowercase properties during decoding
         lowercaseName = name.lowercased()
     }
 }

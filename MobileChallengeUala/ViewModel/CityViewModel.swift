@@ -61,7 +61,6 @@ class CityViewModel: ObservableObject {
                 self.isLoading = false
                 let endTime = Date()
                 let executionTime = endTime.timeIntervalSince(startTime)
-                print("Tiempo de ejecución de filterCities (optimizado): \(executionTime) segundos")
             }
         }
     }

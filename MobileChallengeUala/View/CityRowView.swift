@@ -17,28 +17,30 @@ struct CityRowView: View {
     }
 
     var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("\(cityModel.name). \(cityModel.country)")
-                    .font(.headline)
-                Text("Coordinates: (Lat: \(cityModel.coord.lat), Lon: \(cityModel.coord.lon))")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-            }
-            Spacer()
-            Button {
-                isFavorite.toggle()
-                if isFavorite {
-                    FavoritesManager.shared.addFavorite(cityId: cityModel.id)
-                } else {
-                    FavoritesManager.shared.removeFavorite(cityId: cityModel.id)
+        NavigationLink(destination: MapView(city: cityModel)) {
+            HStack {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("\(cityModel.name). \(cityModel.country)")
+                        .font(.headline)
+                    Text("Coordinates: (Lat: \(cityModel.coord.lat), Lon: \(cityModel.coord.lon))")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
                 }
-            } label: {
-                Image(systemName: isFavorite ? "star.fill" : "star")
-                    .foregroundColor(.yellow)
+                Spacer()
+                Button {
+                    isFavorite.toggle()
+                    if isFavorite {
+                        FavoritesManager.shared.addFavorite(cityId: cityModel.id)
+                    } else {
+                        FavoritesManager.shared.removeFavorite(cityId: cityModel.id)
+                    }
+                } label: {
+                    Image(systemName: isFavorite ? "star.fill" : "star")
+                        .foregroundColor(.yellow)
+                }
             }
+            .padding()
         }
-        .padding()
     }
 }
 
