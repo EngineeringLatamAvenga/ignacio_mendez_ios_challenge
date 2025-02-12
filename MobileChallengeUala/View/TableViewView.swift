@@ -8,56 +8,102 @@
 import SwiftUI
 
 struct TableViewView: View {
-
     @ObservedObject private var cityViewModel = CityViewModel()
     @State private var showingFavorites = false
-
+    @Environment(\.scenePhase) var scenePhase
+    @State private var to = false
     var body: some View {
         NavigationView {
-            VStack {
-                HStack {
-                    SearchBar(text: $cityViewModel.searchText, cityViewModel: cityViewModel)
-                    Button {
-                        showingFavorites.toggle()
-                        cityViewModel.filterByFavorites(showFavorites: showingFavorites)
-                    } label: {
-                        Image(systemName: showingFavorites ? "heart.fill" : "heart")
-                            .foregroundColor(.red)
-                    }
-                }
+            GeometryReader { geometry in
+                if geometry.size.width > geometry.size.height { // Horizontal
+                    HStack {
+                        VStack {
+                            SearchBar(text: $cityViewModel.searchText, cityViewModel: cityViewModel)
+                            FavoriteButton(showingFavorites: $showingFavorites, cityViewModel: cityViewModel)
+                            CityList(cityViewModel: cityViewModel, horizontal: true)
+                        }
+                        .frame(width: geometry.size.width / 2)
+                        .padding(.top, 10)
+                        .navigationTitle("Cities")
+                        .onAppear { fetchCities(cityViewModel: cityViewModel) }
 
-
-                if cityViewModel.isLoading {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .blue))
-                        .scaleEffect(2.0, anchor: .center)
-                        .padding(.top, 20)
-                } else {
-                    ScrollView {
-                        LazyVStack {
-                            ForEach(cityViewModel.filteredCities) { city in
-                                CityRowView(cityModel: city)
-                            }
+                        if let selectedCity = cityViewModel.selectedCity {
+                            MapView(city: selectedCity)
+                                .frame(width: geometry.size.width / 2)
+                        } else {
+                            Text("Select a city to view on the map")
+                                .frame(width: geometry.size.width / 2)
                         }
                     }
-                }
-                Spacer()
-            }.padding(.top, 10)
-            .navigationTitle("Cities")
-            .onAppear {
-                Task {
-                    do {
-                        try await cityViewModel.fetchCities()
-                    } catch {
-                        print("error")
+                } else { // Vertical
+                    VStack {
+                        SearchBar(text: $cityViewModel.searchText, cityViewModel: cityViewModel)
+                        FavoriteButton(showingFavorites: $showingFavorites, cityViewModel: cityViewModel)
+                        CityList(cityViewModel: cityViewModel, horizontal: false)
                     }
+                    .padding(.top, 10)
+                    .navigationTitle("Cities")
+                    .onAppear { fetchCities(cityViewModel: cityViewModel) }
                 }
+            }
+        }
+        .onChange(of: scenePhase) { newPhase in
+            if newPhase == .active {
+                // Puedes agregar lógica adicional aquí si es necesario
+            }
+        }
+    }
+
+    private func fetchCities(cityViewModel: CityViewModel) {
+        Task {
+            do {
+                try await cityViewModel.fetchCities()
+            } catch {
+                print("error")
             }
         }
     }
 }
 
-// Barra de búsqueda
+struct FavoriteButton: View {
+    @Binding var showingFavorites: Bool
+    @ObservedObject var cityViewModel: CityViewModel
+
+    var body: some View {
+        Button {
+            showingFavorites.toggle()
+            cityViewModel.filterByFavorites(showFavorites: showingFavorites)
+        } label: {
+            Image(systemName: showingFavorites ? "heart.fill" : "heart")
+                .foregroundColor(.red)
+        }
+        .padding(.horizontal)
+    }
+}
+
+struct CityList: View {
+    @ObservedObject var cityViewModel: CityViewModel
+    var horizontal: Bool
+
+    var body: some View {
+        if cityViewModel.isLoading {
+            ProgressView()
+                .progressViewStyle(CircularProgressViewStyle(tint: .blue))
+                .scaleEffect(2.0, anchor: .center)
+                .padding(.top, 20)
+        } else {
+            ScrollView {
+                LazyVStack {
+                    ForEach(cityViewModel.filteredCities) { city in
+                        CityRowView(cityModel: city, cityViewModel: cityViewModel, horizontal: horizontal)
+                    }
+                }
+            }
+        }
+        Spacer()
+    }
+}
+
 struct SearchBar: View {
     @Binding var text: String
     @ObservedObject var cityViewModel: CityViewModel

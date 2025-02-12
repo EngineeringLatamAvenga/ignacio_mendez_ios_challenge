@@ -10,39 +10,74 @@ import SwiftUI
 struct CityRowView: View {
     var cityModel: CityModel
     @State private var isFavorite: Bool
+    @ObservedObject var cityViewModel: CityViewModel
+    @Environment(\.scenePhase) var scenePhase
+    var horizontal: Bool = false
 
-    init(cityModel: CityModel) {
+    init(cityModel: CityModel, cityViewModel: CityViewModel, horizontal: Bool) {
         self.cityModel = cityModel
         _isFavorite = State(initialValue: FavoritesManager.shared.isFavorite(cityId: cityModel.id))
+        self.cityViewModel = cityViewModel
+        self.horizontal = horizontal
     }
 
     var body: some View {
-        NavigationLink(destination: MapView(city: cityModel)) {
-            HStack {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("\(cityModel.name). \(cityModel.country)")
-                        .font(.headline)
-                    Text("Coordinates: (Lat: \(cityModel.coord.lat), Lon: \(cityModel.coord.lon))")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                }
-                Spacer()
-                Button {
-                    isFavorite.toggle()
-                    if isFavorite {
-                        FavoritesManager.shared.addFavorite(cityId: cityModel.id)
-                    } else {
-                        FavoritesManager.shared.removeFavorite(cityId: cityModel.id)
+        if horizontal {
+            Button(action: {
+                cityViewModel.selectedCity = cityModel
+            }) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("\(cityModel.name). \(cityModel.country)")
+                            .font(.headline)
+                        Text("Coordinates: (Lat: \(cityModel.coord.lat), Lon: \(cityModel.coord.lon))")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
                     }
-                } label: {
-                    Image(systemName: isFavorite ? "star.fill" : "star")
-                        .foregroundColor(.yellow)
+                    Spacer()
+                    Button {
+                        isFavorite.toggle()
+                        if isFavorite {
+                            FavoritesManager.shared.addFavorite(cityId: cityModel.id)
+                        } else {
+                            FavoritesManager.shared.removeFavorite(cityId: cityModel.id)
+                        }
+                    } label: {
+                        Image(systemName: isFavorite ? "star.fill" : "star")
+                            .foregroundColor(.yellow)
+                    }
                 }
+                .padding()
             }
-            .padding()
+        } else {
+            NavigationLink(destination: MapView(city: cityModel)) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("\(cityModel.name). \(cityModel.country)")
+                            .font(.headline)
+                        Text("Coordinates: (Lat: \(cityModel.coord.lat), Lon: \(cityModel.coord.lon))")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                    }
+                    Spacer()
+                    Button {
+                        isFavorite.toggle()
+                        if isFavorite {
+                            FavoritesManager.shared.addFavorite(cityId: cityModel.id)
+                        } else {
+                            FavoritesManager.shared.removeFavorite(cityId: cityModel.id)
+                        }
+                    } label: {
+                        Image(systemName: isFavorite ? "star.fill" : "star")
+                            .foregroundColor(.yellow)
+                    }
+                }
+                .padding()
+            }
         }
     }
 }
+
 
 #Preview {
     CityRowView(
@@ -54,6 +89,6 @@ struct CityRowView: View {
                 lon: 1,
                 lat: 1
             )
-        )
+        ), cityViewModel: CityViewModel(), horizontal: false
     )
 }

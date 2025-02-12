@@ -14,6 +14,7 @@ class CityViewModel: ObservableObject {
     @Published var filteredCities: [CityModel] = []
     @Published var searchText: String = ""
     @Published var isLoading: Bool = true
+    @Published var selectedCity: CityModel? = nil // Track the selected city
     var cityViewService = CityViewService()
     private var searchWorkItem: DispatchWorkItem?
     private static var allCities: [CityModel] = []
@@ -61,6 +62,7 @@ class CityViewModel: ObservableObject {
                 self.isLoading = false
                 let endTime = Date()
                 let executionTime = endTime.timeIntervalSince(startTime)
+                print("Tiempo de ejecución de filterCities (optimizado): \(executionTime) segundos")
             }
         }
     }
