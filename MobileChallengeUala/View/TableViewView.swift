@@ -6,16 +6,17 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct TableViewView: View {
     @ObservedObject private var cityViewModel = CityViewModel()
     @State private var showingFavorites = false
     @Environment(\.scenePhase) var scenePhase
-    @State private var to = false
+    @State private var isLandscape: Bool = UIDevice.current.orientation.isLandscape
     var body: some View {
         NavigationView {
             GeometryReader { geometry in
-                if geometry.size.width > geometry.size.height { // Horizontal
+                if isLandscape  { // Horizontal
                     HStack {
                         VStack {
                             SearchBar(text: $cityViewModel.searchText, cityViewModel: cityViewModel)
@@ -52,7 +53,21 @@ struct TableViewView: View {
                 // Puedes agregar lógica adicional aquí si es necesario
             }
         }
+        .onAppear { // ✅ Añade .onAppear y .onDisappear para la notificación
+            NotificationCenter.default.addObserver(
+                forName: UIDevice.orientationDidChangeNotification,
+                object: nil,
+                queue: .main
+            ) { _ in
+                self.isLandscape = UIDevice.current.orientation.isLandscape
+            }
+            self.isLandscape = UIDevice.current.orientation.isLandscape // Orientación inicial
+        }
+        .onDisappear {
+            NotificationCenter.default.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: nil)
+        }
     }
+
 
     private func fetchCities(cityViewModel: CityViewModel) {
         Task {
