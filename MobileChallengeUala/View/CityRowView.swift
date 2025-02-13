@@ -13,14 +13,14 @@ struct CityRowView: View {
     @ObservedObject var cityViewModel: CityViewModel
     @Environment(\.scenePhase) var scenePhase
     var horizontal: Bool = false
-
+    
     init(cityModel: CityModel, cityViewModel: CityViewModel, horizontal: Bool) {
         self.cityModel = cityModel
         _isFavorite = State(initialValue: FavoritesManager.shared.isFavorite(cityId: cityModel.id))
         self.cityViewModel = cityViewModel
         self.horizontal = horizontal
     }
-
+    
     var body: some View {
         if horizontal {
             Button(action: {
