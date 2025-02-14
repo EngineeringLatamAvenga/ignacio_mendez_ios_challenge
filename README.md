@@ -33,7 +33,6 @@ This is an iOS application developed in SwiftUI that allows users to explore a l
     git clone git@github.com:EngineeringLatamAvenga/ignacio_mendez_ios_challenge.git
     cd MobileChallengeUala
     ```
-    (Replace `[REPOSITORY_URL]` with the actual URL of the GitHub repository)
 
 2. **Open the project in Xcode**:
     Open the `MobileChallengeUala.xcodeproj` file with Xcode.
