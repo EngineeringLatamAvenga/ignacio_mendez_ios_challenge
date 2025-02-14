@@ -11,12 +11,12 @@ import MapKit
 struct MapView: View {
     var city: CityModel
     @State private var mapPosition: MapCameraPosition
-    
+
     init(city: CityModel) {
         self.city = city
         _mapPosition = State(initialValue: .region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: city.coord.lat, longitude: city.coord.lon), span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5))))
     }
-    
+
     var body: some View {
         Map(position: $mapPosition) {
             Marker(city.name, coordinate: CLLocationCoordinate2D(latitude: city.coord.lat, longitude: city.coord.lon))
@@ -27,7 +27,7 @@ struct MapView: View {
             mapPosition = .region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: newCity.coord.lat, longitude: newCity.coord.lon), span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5)))
         }
     }
-    
+
     private var coordinateRegion: MKCoordinateRegion {
         MKCoordinateRegion(
             center: CLLocationCoordinate2D(latitude: city.coord.lat, longitude: city.coord.lon),

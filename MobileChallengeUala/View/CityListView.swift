@@ -10,7 +10,12 @@ import SwiftUI
 struct CityList: View {
     @ObservedObject var cityViewModel: CityViewModel
     var horizontal: Bool
-    
+
+    init(cityViewModel: CityViewModel, horizontal: Bool) {
+        self.cityViewModel = cityViewModel
+        self.horizontal = horizontal
+    }
+
     var body: some View {
         if cityViewModel.isLoading {
             ProgressView()
@@ -29,4 +34,3 @@ struct CityList: View {
         Spacer()
     }
 }
-

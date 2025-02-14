@@ -11,7 +11,12 @@ import SwiftUI
 struct FavoriteButton: View {
     @Binding var showingFavorites: Bool
     @ObservedObject var cityViewModel: CityViewModel
-    
+
+    init(showingFavorites: Binding<Bool>, cityViewModel: CityViewModel) {
+        self._showingFavorites = showingFavorites
+        self.cityViewModel = cityViewModel
+    }
+
     var body: some View {
         Button {
             showingFavorites.toggle()

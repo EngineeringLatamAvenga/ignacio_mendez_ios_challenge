@@ -9,10 +9,15 @@ import SwiftUI
 import UIKit
 
 struct TableViewView: View {
-    @ObservedObject private var cityViewModel = CityViewModel()
+    @ObservedObject private var cityViewModel: CityViewModel
     @State private var showingFavorites = false
     @Environment(\.scenePhase) var scenePhase
     @State private var isLandscape: Bool = UIDevice.current.orientation.isLandscape
+
+    init(cityViewModel: CityViewModel = CityViewModel(cityService: CityViewService())) {
+        _cityViewModel = ObservedObject(wrappedValue: cityViewModel)
+    }
+
     var body: some View {
         NavigationView {
             GeometryReader { geometry in
@@ -26,8 +31,8 @@ struct TableViewView: View {
                         .frame(width: geometry.size.width / 2)
                         .padding(.top, 10)
                         .navigationTitle("Cities")
-                        .onAppear { fetchCities(cityViewModel: cityViewModel) }
-                        
+                        .onAppear { fetchCities() }
+
                         if let selectedCity = cityViewModel.selectedCity {
                             MapView(city: selectedCity)
                                 .frame(width: geometry.size.width / 2)
@@ -44,7 +49,7 @@ struct TableViewView: View {
                     }
                     .padding(.top, 10)
                     .navigationTitle("Cities")
-                    .onAppear { fetchCities(cityViewModel: cityViewModel) }
+                    .onAppear { fetchCities() }
                 }
             }
         }
@@ -62,8 +67,8 @@ struct TableViewView: View {
             NotificationCenter.default.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: nil)
         }
     }
-    
-    private func fetchCities(cityViewModel: CityViewModel) {
+
+    private func fetchCities() {
         Task {
             do {
                 try await cityViewModel.fetchCities()
@@ -75,5 +80,5 @@ struct TableViewView: View {
 }
 
 #Preview {
-    TableViewView()
+    TableViewView(cityViewModel: CityViewModel(cityService: MockCityViewService()))
 }
