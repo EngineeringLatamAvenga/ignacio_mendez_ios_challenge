@@ -1,5 +1,7 @@
 # MobileChallengeUala
 
+https://github.com/user-attachments/assets/0f16f2a6-e83d-4b10-9cb3-2feb043dedf6
+
 ## Description
 This is an iOS application developed in SwiftUI that allows users to explore a list of cities, search for specific cities, view their location on a map, and mark cities as favorites. The application consumes city data from a remote web service and uses UserDefaults to persist the user's favorite cities.
 
@@ -67,6 +69,3 @@ To run the tests, go to the Xcode menu **Product > Test** (or press **Cmd+U**).
 
 ## Author
 **Nacho Mendez**
-
-https://github.com/user-attachments/assets/0f16f2a6-e83d-4b10-9cb3-2feb043dedf6
-
